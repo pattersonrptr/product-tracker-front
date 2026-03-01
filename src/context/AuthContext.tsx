@@ -10,23 +10,39 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
+import { jwtDecode } from 'jwt-decode'
 import { useNavigate } from 'react-router-dom'
 import { useSnackbar } from 'notistack'
 import { setOnSessionExpired, setOnTokenUpdated } from '@/api/client'
 import { login as loginService, logout as logoutService } from '@/services/authService'
 import { logger } from '@/lib/logger'
+import type { JwtPayload } from '@/types/auth'
 
 interface AuthContextValue {
   token: string | null
   isAuthenticated: boolean
+  isStaff: boolean
+  isSuperuser: boolean
+  username: string | null
+  userId: number | null
   login: (username: string, password: string) => Promise<void>
   logout: () => void
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
+
+function decodeToken(token: string | null): JwtPayload | null {
+  if (!token) return null
+  try {
+    return jwtDecode<JwtPayload>(token)
+  } catch {
+    return null
+  }
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(
@@ -34,8 +50,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   )
   const navigate = useNavigate()
   const { enqueueSnackbar } = useSnackbar()
-  // Prevent double-firing session expiry snackbar
   const sessionExpiredRef = useRef(false)
+
+  // Decode JWT claims reactively — no extra state needed
+  const claims = useMemo(() => decodeToken(token), [token])
 
   const logout = useCallback(() => {
     logoutService()
@@ -63,7 +81,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(fresh)
   }, [])
 
-  // Wire callbacks into the API client on mount
   useEffect(() => {
     setOnSessionExpired(handleSessionExpired)
     setOnTokenUpdated(handleTokenUpdated)
@@ -82,7 +99,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ token, isAuthenticated: !!token, login, logout }}
+      value={{
+        token,
+        isAuthenticated: !!token,
+        isStaff: claims?.is_staff ?? false,
+        isSuperuser: claims?.is_superuser ?? false,
+        username: claims?.sub ?? null,
+        userId: claims?.user_id ?? null,
+        login,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>

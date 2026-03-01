@@ -11,9 +11,13 @@ export interface TokenValidation {
   message?: string
 }
 
-/** Decoded JWT payload (subset we care about) */
+/** Decoded JWT payload — matches what the backend encodes */
 export interface JwtPayload {
-  sub: string
+  sub: string        // username
+  user_id: number
+  email: string
   exp: number
-  iat: number
+  iat?: number
+  is_staff?: boolean
+  is_superuser?: boolean
 }

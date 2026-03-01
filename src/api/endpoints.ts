@@ -10,8 +10,9 @@ export const API_BASE_URL = BASE
 export const ENDPOINTS = {
   auth: {
     login: `${BASE}/auth/login`,
+    register: `${BASE}/auth/register`,
     refresh: `${BASE}/auth/refresh-token`,
-    validate: `${BASE}/auth/validate-token`,
+    validate: `${BASE}/auth/verify-token`,
   },
   users: {
     me: `${BASE}/users/me`,
