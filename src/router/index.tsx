@@ -7,10 +7,12 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { useAuth } from '@/context/AuthContext'
 import { LoginPage } from '@/pages/LoginPage'
+import { RegisterPage } from '@/pages/RegisterPage'
 import { ProductDetailPage } from '@/pages/ProductDetailPage'
 import { ProductsPage } from '@/pages/ProductsPage'
 import { SearchConfigsPage } from '@/pages/SearchConfigsPage'
 import { SourceWebsitesPage } from '@/pages/SourceWebsitesPage'
+import { UsersPage } from '@/pages/UsersPage'
 
 /** Wraps protected routes — redirects to /login if not authenticated. */
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -30,6 +32,12 @@ export function AppRouter() {
           isAuthenticated ? <Navigate to="/products" replace /> : <LoginPage />
         }
       />
+      <Route
+        path="/register"
+        element={
+          isAuthenticated ? <Navigate to="/products" replace /> : <RegisterPage />
+        }
+      />
 
       {/* Protected routes — all inside AppLayout (Header + Sidebar + Footer) */}
       <Route
@@ -44,6 +52,7 @@ export function AppRouter() {
         <Route path="/products/:id" element={<ProductDetailPage />} />
         <Route path="/search-configs" element={<SearchConfigsPage />} />
         <Route path="/source-websites" element={<SourceWebsitesPage />} />
+        <Route path="/users" element={<UsersPage />} />
       </Route>
 
       {/* Catch-all */}

@@ -1,6 +1,6 @@
 # Product Tracker — Frontend
 
-React + Vite + TypeScript frontend for the **Product Tracker** application.  
+React + Vite + TypeScript frontend for the **Product Tracker** application.
 Tracks product prices over time and manages scraping configurations.
 
 ---
@@ -21,6 +21,41 @@ Tracks product prices over time and manages scraping configurations.
 
 ---
 
+## Features
+
+### Authentication
+- **Login** — JWT-based authentication with automatic token refresh
+- **Register** — Public self-registration form (username, email, password)
+- **Logout** — Confirmation dialog before signing out
+- **Session expiry** — Automatic redirect to login on token expiry
+
+### Products
+- Server-side paginated and sortable DataGrid
+- **Filter toolbar** — filter by title, condition, and availability
+- **Inline edit modal** — edit title, URL, condition, availability, seller, description
+- **Bulk delete** — select multiple rows with checkboxes and delete in one click
+- Page size selector: 10 / 25 / 50 / 100
+- View detailed price history per product
+
+### Search Configurations
+- Server-side paginated DataGrid
+- **Create / edit modal** — search term, frequency, preferred time, active toggle, multi-select source websites
+- **Delete** with confirmation dialog
+- **Bulk delete** with checkboxes
+
+### Source Websites
+- Server-side paginated DataGrid
+- **Create / edit modal** — name, base URL, active toggle
+- **Delete** with confirmation dialog
+- **Bulk delete** with checkboxes
+
+### Users _(staff / superuser only)_
+- Accessible only to users with `is_staff` or `is_superuser` flag (shown in sidebar)
+- Staff: read-only view (username, email, flags, created date)
+- Superuser: full CRUD — create users, edit flags, delete with confirmation, **bulk delete**
+
+---
+
 ## Architecture
 
 ```
@@ -29,8 +64,9 @@ src/
 │   ├── client.ts          # Axios instance — JWT interceptors, token refresh queue
 │   ├── endpoints.ts       # All API URL constants in one place
 │   └── jsonapi.ts         # JSON:API helpers (unwrapSingle, unwrapCollection, wrapPayload)
-├── services/              # One file per resource — maps API ↔ domain types
+├── services/              # One file per resource — maps API <-> domain types
 │   ├── authService.ts
+│   ├── userService.ts
 │   ├── productService.ts
 │   ├── priceHistoryService.ts
 │   ├── searchConfigService.ts
@@ -39,16 +75,18 @@ src/
 │   ├── usePaginatedResource.ts   # Generic paginated list hook
 │   └── useProductDetails.ts
 ├── context/
-│   └── AuthContext.tsx    # Auth state, exposes useAuth()
+│   └── AuthContext.tsx    # Auth state — exposes useAuth() with isStaff, isSuperuser, userId, username
 ├── components/
-│   ├── common/            # Shared UI components (dialogs, modals, page header)
+│   ├── common/            # Shared UI: ConfirmationDialog, GenericFormModal, PageHeader
 │   └── layout/            # App shell: AppLayout, Header, Sidebar, Footer
 ├── pages/                 # One file per route
 │   ├── LoginPage.tsx
+│   ├── RegisterPage.tsx
 │   ├── ProductsPage.tsx
 │   ├── ProductDetailPage.tsx
 │   ├── SearchConfigsPage.tsx
-│   └── SourceWebsitesPage.tsx
+│   ├── SourceWebsitesPage.tsx
+│   └── UsersPage.tsx
 ├── router/
 │   └── index.tsx          # Route definitions + RequireAuth guard
 ├── types/                 # Shared TypeScript interfaces (barrel-exported from index.ts)
@@ -60,14 +98,14 @@ src/
     └── unit/              # Unit tests mirroring src/ structure
 ```
 
-Data flow: `pages` → `hooks` → `services` → `api/client` → backend
+Data flow: `pages` -> `hooks` -> `services` -> `api/client` -> backend
 
 ---
 
 ## Prerequisites
 
-- Node.js ≥ 18
-- npm ≥ 9
+- Node.js >= 18
+- npm >= 9
 - The [product-tracker backend](../product-tracker) running on `http://localhost:8000`
 
 ---
