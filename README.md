@@ -166,6 +166,24 @@ open coverage/index.html
 
 ## Docker
 
+### With Docker Compose (recommended)
+
+```bash
+# Start (builds the image automatically, serves on port 80)
+docker compose up --build
+
+# Use a custom backend URL
+VITE_API_BASE_URL=https://api.mysite.com docker compose up --build
+
+# Run in the background
+docker compose up -d --build
+
+# Stop
+docker compose down
+```
+
+### Manual Docker build
+
 ```bash
 # Build the image
 docker build -t product-tracker-front .
